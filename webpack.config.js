@@ -3,7 +3,7 @@ const BrowserSyncPlugin = require('browser-sync-webpack-plugin');
 module.exports = {
     entry: './src/canvas.js',
     output: {
-        path: __dirname + '/dist',
+        path: __dirname + '/docs',
         filename: 'canvas.bundle.js'
     },
     module: {
@@ -26,8 +26,8 @@ module.exports = {
         new BrowserSyncPlugin({
             host: 'localhost',
             port: 3000,
-            server: { baseDir: ['dist'] },
-            files: ['./dist/*']
+            server: { baseDir: ['docs'] },
+            files: ['./docs/*']
         }),
     ],
     watch: true,

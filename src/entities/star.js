@@ -3,7 +3,7 @@ import { randomIntFromRange } from "../canvas";
 export class Star {
   constructor(ctx){
     this.x = randomIntFromRange(10, ctx.canvas.width)
-    this.y = randomIntFromRange(10, ctx.canvas.width)
+    this.y = randomIntFromRange(10, ctx.canvas.height)
     this.r = randomIntFromRange(1, 2)
     this.color = 'rgba(255,255,255,1)'
     setInterval(()=>{

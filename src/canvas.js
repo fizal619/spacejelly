@@ -2,6 +2,7 @@
 import './main.scss'
 import Spaceship from './entities/spaceship';
 import { Star } from './entities/star';
+import { Alien } from './entities/alien';
 let canvas = document.querySelector('canvas')
 const c = canvas.getContext('2d')
 
@@ -9,12 +10,12 @@ function canvasSize(canvas) {
   let x
   if(innerHeight < innerWidth) {
     x = innerHeight
-    canvas.width = x 
+    canvas.width = x
     canvas.height = x
   } else {
     x = innerWidth
     canvas.width = x
-    canvas.height = x 
+    canvas.height = x
   }
   return canvas
 }
@@ -37,7 +38,7 @@ const colors = ['red', 'blue', 'yellow', 'green']
 
 addEventListener('resize', () => {
   canvas = canvasSize(canvas)
-  
+
   animate()
 })
 
@@ -54,19 +55,20 @@ function randomColor(colors) {
 function distance(x1, y1, x2, y2) {
   const xDist = x2 - x1
   const yDist = y2 - y1
-  
+
   return Math.sqrt(Math.pow(xDist, 2) + Math.pow(yDist, 2))
 }
 
 // Implementation
 let player
 let stars = []
+let aliens = []
 const state = {
   player: {
     x: canvas.height/2,
     y: canvas.width/2
   }
-} 
+}
 
 addEventListener('keydown', (e)=>{
   player.action(e, c)
@@ -75,6 +77,9 @@ addEventListener('keydown', (e)=>{
 function init() {
   for (let i = 0; i < 100; i++) {
     stars.push(new Star(c))
+  }
+  for (let j = 0; j < 20; j++) {
+    aliens.push(new Alien(c, randomColor(colors)))
   }
   player = new Spaceship(randomColor(colors), c)
 }
@@ -86,8 +91,11 @@ function animate() {
   for (let i = 0; i < stars.length; i++) {
     stars[i].update(c)
   }
+  for (let i = 0; i < aliens.length; i++) {
+    aliens[i].update(c)
+  }
   player.update(c)
- 
+
 }
 
 init()

@@ -86,10 +86,12 @@ var _spaceship2 = _interopRequireDefault(_spaceship);
 
 var _star = __webpack_require__(2);
 
+var _alien = __webpack_require__(9);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var canvas = document.querySelector('canvas'); // Initial Setup
-
+// Initial Setup
+var canvas = document.querySelector('canvas');
 var c = canvas.getContext('2d');
 
 function canvasSize(canvas) {
@@ -147,6 +149,7 @@ function distance(x1, y1, x2, y2) {
 // Implementation
 var player = void 0;
 var stars = [];
+var aliens = [];
 var state = {
   player: {
     x: canvas.height / 2,
@@ -162,6 +165,9 @@ function init() {
   for (var i = 0; i < 100; i++) {
     stars.push(new _star.Star(c));
   }
+  for (var j = 0; j < 20; j++) {
+    aliens.push(new _alien.Alien(c, randomColor(colors)));
+  }
   player = new _spaceship2.default(randomColor(colors), c);
 }
 
@@ -171,6 +177,9 @@ function animate() {
   c.clearRect(0, 0, canvas.width, canvas.height);
   for (var i = 0; i < stars.length; i++) {
     stars[i].update(c);
+  }
+  for (var _i = 0; _i < aliens.length; _i++) {
+    aliens[_i].update(c);
   }
   player.update(c);
 }
@@ -281,7 +290,7 @@ var Star = exports.Star = function () {
     _classCallCheck(this, Star);
 
     this.x = (0, _canvas.randomIntFromRange)(10, ctx.canvas.width);
-    this.y = (0, _canvas.randomIntFromRange)(10, ctx.canvas.width);
+    this.y = (0, _canvas.randomIntFromRange)(10, ctx.canvas.height);
     this.r = (0, _canvas.randomIntFromRange)(1, 2);
     this.color = 'rgba(255,255,255,1)';
     setInterval(function () {
@@ -399,7 +408,7 @@ exports = module.exports = __webpack_require__(6)(false);
 
 
 // module
-exports.push([module.i, "body {\n  margin: 0;\n  padding: 0;\n  display: flex;\n  align-items: center;\n  height: 100vh; }\n\ncanvas {\n  display: block;\n  margin: 0 auto;\n  background: #272727;\n  background-size: cover; }\n", ""]);
+exports.push([module.i, "body {\n  margin: 0;\n  padding: 0;\n  display: flex;\n  align-items: center;\n  height: 100vh;\n  background: #0a0a0a; }\n\ncanvas {\n  display: block;\n  margin: 0 auto;\n  background: #272727;\n  background-size: cover; }\n", ""]);
 
 // exports
 
@@ -966,6 +975,69 @@ module.exports = function (css) {
 	return fixedCss;
 };
 
+
+/***/ }),
+/* 9 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.Alien = undefined;
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _canvas = __webpack_require__(0);
+
+var _utilities = __webpack_require__(4);
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var Alien = exports.Alien = function () {
+  function Alien(ctx, color) {
+    _classCallCheck(this, Alien);
+
+    this.color = color;
+    this.resposition(ctx);
+    this.timeout = 1000;
+  }
+
+  _createClass(Alien, [{
+    key: "resposition",
+    value: function resposition(ctx) {
+      var _this = this;
+
+      var oneUnit = (0, _utilities.oneUnitFromCanvas)(ctx.canvas);
+      this.unitX = (0, _canvas.randomIntFromRange)(0, 200);
+      this.unitY = (0, _canvas.randomIntFromRange)(50, 150);
+      this.x = this.unitX * oneUnit.x;
+      this.y = this.unitY * oneUnit.y;
+      setTimeout(function () {
+        _this.timeout = (0, _canvas.randomIntFromRange)(1000, 5000);
+        _this.resposition(ctx);
+      }, this.timeout);
+    }
+  }, {
+    key: "draw",
+    value: function draw(ctx) {
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, 5, 0, Math.PI * 2, false);
+      ctx.fillStyle = this.color;
+      ctx.fill();
+      ctx.closePath();
+    }
+  }, {
+    key: "update",
+    value: function update(ctx) {
+      this.draw(ctx);
+    }
+  }]);
+
+  return Alien;
+}();
 
 /***/ })
 /******/ ]);

@@ -7,32 +7,37 @@ export default class Spaceship {
     this.x = oneUnit.x * 94
     this.y = (oneUnit.y * 200) - (this.box + 10)
     this.image = new Image()
+    this.unitX = 100
+    this.unitY = 200 - 6
     this.image.src = colors[color]
     this.frame = 0
     setInterval(()=>{
-      this.frame ++ 
+      this.frame ++
       if(this.frame === 9) this.frame = 0
     }, 1000/12)
   }
 
   draw(ctx){
-    ctx.drawImage(this.image,this.frame * 32, 0, 32, 32,this.x, this.y, this.box, this.box);
-    console.log('canvas', this.x, this.y, 'units', XYCoordstoUnits({x:this.x, y:this.y}, ctx.canvas))
+    ctx.drawImage(this.image,this.frame * 32, 0, 32, 32,this.x, this.y, this.box, this.box)
   }
 
   action(e, ctx){
     const oneUnit = oneUnitFromCanvas(ctx.canvas)
     const xUnitVelocity = oneUnit.x * 2
-    console.log(e.key)
     switch(e.key){
       case 'ArrowRight':
-        if((this.x + xUnitVelocity) < (ctx.canvas.width - (this.box + 1))) this.x += xUnitVelocity
+        if((this.x + xUnitVelocity) < (ctx.canvas.width - (this.box + 1))) {
+          this.x += xUnitVelocity
+          this.unitX += 2
+        }
         break
       case 'ArrowLeft':
-        if((this.x - xUnitVelocity) > 0) this.x -= xUnitVelocity
+        if((this.x - xUnitVelocity) > 0) {
+          this.x -= xUnitVelocity
+          this.unitX -= 2
+        }
         break
     }
-    this.update(ctx)
   }
 
   update(ctx){

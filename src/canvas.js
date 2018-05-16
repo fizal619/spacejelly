@@ -3,6 +3,7 @@ import './main.scss'
 import Spaceship from './entities/spaceship';
 import { Star } from './entities/star';
 import { Alien } from './entities/alien';
+import { Laser } from './entities/laser';
 let canvas = document.querySelector('canvas')
 const c = canvas.getContext('2d')
 
@@ -63,15 +64,12 @@ function distance(x1, y1, x2, y2) {
 let player
 let stars = []
 let aliens = []
-const state = {
-  player: {
-    x: canvas.height/2,
-    y: canvas.width/2
-  }
-}
+let laser
 
 addEventListener('keydown', (e)=>{
+  console.log('KEY PRESS', e.key)
   player.action(e, c)
+  laser.action(e, c)
 })
 
 function init() {
@@ -82,6 +80,7 @@ function init() {
     aliens.push(new Alien(c, randomColor(colors)))
   }
   player = new Spaceship(randomColor(colors), c)
+  laser = new Laser(c, player, aliens)
 }
 
 // Animation Loop
@@ -94,6 +93,7 @@ function animate() {
   for (let i = 0; i < aliens.length; i++) {
     aliens[i].update(c)
   }
+  laser.update(c, player)
   player.update(c)
 
 }

@@ -78,20 +78,22 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.randomIntFromRange = randomIntFromRange;
 
-__webpack_require__(3);
+__webpack_require__(5);
 
-var _spaceship = __webpack_require__(1);
+var _spaceship = __webpack_require__(3);
 
 var _spaceship2 = _interopRequireDefault(_spaceship);
 
-var _star = __webpack_require__(2);
+var _star = __webpack_require__(4);
 
-var _alien = __webpack_require__(9);
+var _alien = __webpack_require__(2);
+
+var _laser = __webpack_require__(10);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-// Initial Setup
-var canvas = document.querySelector('canvas');
+var canvas = document.querySelector('canvas'); // Initial Setup
+
 var c = canvas.getContext('2d');
 
 function canvasSize(canvas) {
@@ -150,15 +152,12 @@ function distance(x1, y1, x2, y2) {
 var player = void 0;
 var stars = [];
 var aliens = [];
-var state = {
-  player: {
-    x: canvas.height / 2,
-    y: canvas.width / 2
-  }
-};
+var laser = void 0;
 
 addEventListener('keydown', function (e) {
+  console.log('KEY PRESS', e.key);
   player.action(e, c);
+  laser.action(e, c);
 });
 
 function init() {
@@ -169,6 +168,7 @@ function init() {
     aliens.push(new _alien.Alien(c, randomColor(colors)));
   }
   player = new _spaceship2.default(randomColor(colors), c);
+  laser = new _laser.Laser(c, player, aliens);
 }
 
 // Animation Loop
@@ -181,6 +181,7 @@ function animate() {
   for (var _i = 0; _i < aliens.length; _i++) {
     aliens[_i].update(c);
   }
+  laser.update(c, player);
   player.update(c);
 }
 
@@ -197,10 +198,105 @@ animate();
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+var oneUnitFromCanvas = exports.oneUnitFromCanvas = function oneUnitFromCanvas(canvas) {
+  var x = canvas.height / 200;
+  var y = canvas.width / 200;
+  return { x: x, y: y };
+};
+
+var unitCoordsToXY = exports.unitCoordsToXY = function unitCoordsToXY(units, canvas) {
+  var oneUnit = oneUnitFromCanvas(canvas);
+  return {
+    x: units.x * oneUnit.x,
+    y: units.y * oneUnit.y
+  };
+};
+
+var XYCoordstoUnits = exports.XYCoordstoUnits = function XYCoordstoUnits(xy, canvas) {
+  var oneUnit = oneUnitFromCanvas(canvas);
+  return {
+    x: xy.x / oneUnit.x,
+    y: xy.y / oneUnit.y
+  };
+};
+
+/***/ }),
+/* 2 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.Alien = undefined;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _utilities = __webpack_require__(4);
+var _canvas = __webpack_require__(0);
+
+var _utilities = __webpack_require__(1);
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var Alien = exports.Alien = function () {
+  function Alien(ctx, color) {
+    _classCallCheck(this, Alien);
+
+    this.color = color;
+    this.resposition(ctx);
+    this.timeout = 1000;
+  }
+
+  _createClass(Alien, [{
+    key: "resposition",
+    value: function resposition(ctx) {
+      var _this = this;
+
+      var oneUnit = (0, _utilities.oneUnitFromCanvas)(ctx.canvas);
+      this.unitX = (0, _canvas.randomIntFromRange)(0, 200);
+      this.unitY = (0, _canvas.randomIntFromRange)(50, 150);
+      this.x = this.unitX * oneUnit.x;
+      this.y = this.unitY * oneUnit.y;
+      setTimeout(function () {
+        _this.timeout = (0, _canvas.randomIntFromRange)(1000, 5000);
+        _this.resposition(ctx);
+      }, this.timeout);
+    }
+  }, {
+    key: "draw",
+    value: function draw(ctx) {
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, 5, 0, Math.PI * 2, false);
+      ctx.fillStyle = this.color;
+      ctx.fill();
+      ctx.closePath();
+    }
+  }, {
+    key: "update",
+    value: function update(ctx) {
+      this.draw(ctx);
+    }
+  }]);
+
+  return Alien;
+}();
+
+/***/ }),
+/* 3 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _utilities = __webpack_require__(1);
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -215,6 +311,8 @@ var Spaceship = function () {
     this.x = oneUnit.x * 94;
     this.y = oneUnit.y * 200 - (this.box + 10);
     this.image = new Image();
+    this.unitX = 100;
+    this.unitY = 200 - 6;
     this.image.src = colors[color];
     this.frame = 0;
     setInterval(function () {
@@ -227,23 +325,26 @@ var Spaceship = function () {
     key: 'draw',
     value: function draw(ctx) {
       ctx.drawImage(this.image, this.frame * 32, 0, 32, 32, this.x, this.y, this.box, this.box);
-      console.log('canvas', this.x, this.y, 'units', (0, _utilities.XYCoordstoUnits)({ x: this.x, y: this.y }, ctx.canvas));
     }
   }, {
     key: 'action',
     value: function action(e, ctx) {
       var oneUnit = (0, _utilities.oneUnitFromCanvas)(ctx.canvas);
       var xUnitVelocity = oneUnit.x * 2;
-      console.log(e.key);
       switch (e.key) {
         case 'ArrowRight':
-          if (this.x + xUnitVelocity < ctx.canvas.width - (this.box + 1)) this.x += xUnitVelocity;
+          if (this.x + xUnitVelocity < ctx.canvas.width - (this.box + 1)) {
+            this.x += xUnitVelocity;
+            this.unitX += 2;
+          }
           break;
         case 'ArrowLeft':
-          if (this.x - xUnitVelocity > 0) this.x -= xUnitVelocity;
+          if (this.x - xUnitVelocity > 0) {
+            this.x -= xUnitVelocity;
+            this.unitX -= 2;
+          }
           break;
       }
-      this.update(ctx);
     }
   }, {
     key: 'update',
@@ -266,7 +367,7 @@ var colors = {
 };
 
 /***/ }),
-/* 2 */
+/* 4 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -318,11 +419,11 @@ var Star = exports.Star = function () {
 }();
 
 /***/ }),
-/* 3 */
+/* 5 */
 /***/ (function(module, exports, __webpack_require__) {
 
 
-var content = __webpack_require__(5);
+var content = __webpack_require__(6);
 
 if(typeof content === 'string') content = [[module.i, content, '']];
 
@@ -336,7 +437,7 @@ var options = {"hmr":true}
 options.transform = transform
 options.insertInto = undefined;
 
-var update = __webpack_require__(7)(content, options);
+var update = __webpack_require__(8)(content, options);
 
 if(content.locals) module.exports = content.locals;
 
@@ -368,42 +469,10 @@ if(false) {
 }
 
 /***/ }),
-/* 4 */
+/* 6 */
 /***/ (function(module, exports, __webpack_require__) {
 
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-var oneUnitFromCanvas = exports.oneUnitFromCanvas = function oneUnitFromCanvas(canvas) {
-  var x = canvas.height / 200;
-  var y = canvas.width / 200;
-  return { x: x, y: y };
-};
-
-var unitCoordsToXY = exports.unitCoordsToXY = function unitCoordsToXY(units, canvas) {
-  var oneUnit = oneUnitFromCanvas(canvas);
-  return {
-    x: units.x * oneUnit.x,
-    y: units.y * oneUnit.y
-  };
-};
-
-var XYCoordstoUnits = exports.XYCoordstoUnits = function XYCoordstoUnits(xy, canvas) {
-  var oneUnit = oneUnitFromCanvas(canvas);
-  return {
-    x: xy.x / oneUnit.x,
-    y: xy.y / oneUnit.y
-  };
-};
-
-/***/ }),
-/* 5 */
-/***/ (function(module, exports, __webpack_require__) {
-
-exports = module.exports = __webpack_require__(6)(false);
+exports = module.exports = __webpack_require__(7)(false);
 // imports
 
 
@@ -414,7 +483,7 @@ exports.push([module.i, "body {\n  margin: 0;\n  padding: 0;\n  display: flex;\n
 
 
 /***/ }),
-/* 6 */
+/* 7 */
 /***/ (function(module, exports) {
 
 /*
@@ -496,7 +565,7 @@ function toComment(sourceMap) {
 
 
 /***/ }),
-/* 7 */
+/* 8 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*
@@ -562,7 +631,7 @@ var singleton = null;
 var	singletonCounter = 0;
 var	stylesInsertedAtTop = [];
 
-var	fixUrls = __webpack_require__(8);
+var	fixUrls = __webpack_require__(9);
 
 module.exports = function(list, options) {
 	if (typeof DEBUG !== "undefined" && DEBUG) {
@@ -882,7 +951,7 @@ function updateLink (link, options, obj) {
 
 
 /***/ }),
-/* 8 */
+/* 9 */
 /***/ (function(module, exports) {
 
 
@@ -977,7 +1046,7 @@ module.exports = function (css) {
 
 
 /***/ }),
-/* 9 */
+/* 10 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -986,57 +1055,74 @@ module.exports = function (css) {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.Alien = undefined;
+exports.Laser = undefined;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 var _canvas = __webpack_require__(0);
 
-var _utilities = __webpack_require__(4);
+var _utilities = __webpack_require__(1);
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var Alien = exports.Alien = function () {
-  function Alien(ctx, color) {
-    _classCallCheck(this, Alien);
+var Laser = exports.Laser = function () {
+  function Laser(ctx, player, aliens) {
+    var _this = this;
 
-    this.color = color;
-    this.resposition(ctx);
-    this.timeout = 1000;
+    _classCallCheck(this, Laser);
+
+    var oneUnit = (0, _utilities.oneUnitFromCanvas)(ctx.canvas);
+    this.color = 'green';
+    this.fired = false;
+    this.velocity = 2;
+    this.x = player.unitX * oneUnit.x;
+    this.y = player.unitY * oneUnit.y;
+    this.aliens = aliens;
+    setInterval(function () {
+      _this.color = "rgba(255,127,127," + Math.random() + ")";
+    }, 500);
   }
 
-  _createClass(Alien, [{
-    key: "resposition",
-    value: function resposition(ctx) {
-      var _this = this;
-
+  _createClass(Laser, [{
+    key: "action",
+    value: function action(e, ctx) {
       var oneUnit = (0, _utilities.oneUnitFromCanvas)(ctx.canvas);
-      this.unitX = (0, _canvas.randomIntFromRange)(0, 200);
-      this.unitY = (0, _canvas.randomIntFromRange)(50, 150);
-      this.x = this.unitX * oneUnit.x;
-      this.y = this.unitY * oneUnit.y;
-      setTimeout(function () {
-        _this.timeout = (0, _canvas.randomIntFromRange)(1000, 5000);
-        _this.resposition(ctx);
-      }, this.timeout);
+      switch (e.key) {
+        case ' ':
+          this.fired = true;
+          break;
+      }
     }
   }, {
     key: "draw",
     value: function draw(ctx) {
       ctx.beginPath();
-      ctx.arc(this.x, this.y, 5, 0, Math.PI * 2, false);
+      ctx.arc(this.x, this.y, 7, 0, Math.PI * 2, false);
       ctx.fillStyle = this.color;
       ctx.fill();
       ctx.closePath();
     }
   }, {
     key: "update",
-    value: function update(ctx) {
+    value: function update(ctx, player) {
+      var oneUnit = (0, _utilities.oneUnitFromCanvas)(ctx.canvas);
+      if (this.fired) {
+        console.log('fired');
+        this.y -= this.velocity * oneUnit.y;
+      } else {
+        this.x = player.unitX * oneUnit.x;
+        this.y = player.unitY * oneUnit.y;
+      }
+      if (this.y <= 0) {
+        this.fired = false;
+        this.x = player.unitX * oneUnit.x;
+        this.y = player.unitY * oneUnit.y;
+      }
       this.draw(ctx);
     }
   }]);
 
-  return Alien;
+  return Laser;
 }();
 
 /***/ })

@@ -77,6 +77,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.randomIntFromRange = randomIntFromRange;
+exports.distance = distance;
 
 __webpack_require__(5);
 
@@ -181,7 +182,7 @@ function animate() {
   for (var _i = 0; _i < aliens.length; _i++) {
     aliens[_i].update(c);
   }
-  laser.update(c, player);
+  laser.update(c, player, aliens);
   player.update(c);
 }
 
@@ -245,30 +246,27 @@ var Alien = exports.Alien = function () {
     _classCallCheck(this, Alien);
 
     this.color = color;
-    this.resposition(ctx);
-    this.timeout = 1000;
+    this.timeout = 60;
+    this.shift = 0;
+    this.box = 7;
   }
 
   _createClass(Alien, [{
     key: "resposition",
     value: function resposition(ctx) {
-      var _this = this;
-
       var oneUnit = (0, _utilities.oneUnitFromCanvas)(ctx.canvas);
       this.unitX = (0, _canvas.randomIntFromRange)(0, 200);
       this.unitY = (0, _canvas.randomIntFromRange)(50, 150);
       this.x = this.unitX * oneUnit.x;
       this.y = this.unitY * oneUnit.y;
-      setTimeout(function () {
-        _this.timeout = (0, _canvas.randomIntFromRange)(1000, 5000);
-        _this.resposition(ctx);
-      }, this.timeout);
+      this.timeout = (0, _canvas.randomIntFromRange)(180, 600);
+      this.shift = 0;
     }
   }, {
     key: "draw",
     value: function draw(ctx) {
       ctx.beginPath();
-      ctx.arc(this.x, this.y, 5, 0, Math.PI * 2, false);
+      ctx.arc(this.x, this.y, this.box, 0, Math.PI * 2, false);
       ctx.fillStyle = this.color;
       ctx.fill();
       ctx.closePath();
@@ -276,6 +274,11 @@ var Alien = exports.Alien = function () {
   }, {
     key: "update",
     value: function update(ctx) {
+      if (this.timeout > this.shift) {
+        this.shift++;
+      } else {
+        this.resposition(ctx);
+      }
       this.draw(ctx);
     }
   }]);
@@ -1066,7 +1069,7 @@ var _utilities = __webpack_require__(1);
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var Laser = exports.Laser = function () {
-  function Laser(ctx, player, aliens) {
+  function Laser(ctx, player) {
     var _this = this;
 
     _classCallCheck(this, Laser);
@@ -1074,10 +1077,12 @@ var Laser = exports.Laser = function () {
     var oneUnit = (0, _utilities.oneUnitFromCanvas)(ctx.canvas);
     this.color = 'green';
     this.fired = false;
-    this.velocity = 2;
+    this.velocity = 3;
+    this.unitX = player.unitX;
+    this.unitY = player.unitY;
     this.x = player.unitX * oneUnit.x;
     this.y = player.unitY * oneUnit.y;
-    this.aliens = aliens;
+    this.box = 7;
     setInterval(function () {
       _this.color = "rgba(255,127,127," + Math.random() + ")";
     }, 500);
@@ -1097,26 +1102,45 @@ var Laser = exports.Laser = function () {
     key: "draw",
     value: function draw(ctx) {
       ctx.beginPath();
-      ctx.arc(this.x, this.y, 7, 0, Math.PI * 2, false);
+      ctx.arc(this.x, this.y, this.box, 0, Math.PI * 2, false);
       ctx.fillStyle = this.color;
       ctx.fill();
       ctx.closePath();
     }
   }, {
+    key: "checkColissions",
+    value: function checkColissions(aliens) {
+      var _this2 = this;
+
+      var hit = aliens.reduce(function (p, c, i) {
+        if ((0, _canvas.distance)(c.unitX, c.unitY, _this2.unitX, _this2.unitY) <= _this2.box + c.box + 20) {
+          return true;
+        }
+      }, false);
+      if (hit) {
+        console.log('HIT');
+      }
+    }
+  }, {
     key: "update",
-    value: function update(ctx, player) {
+    value: function update(ctx, player, aliens) {
       var oneUnit = (0, _utilities.oneUnitFromCanvas)(ctx.canvas);
       if (this.fired) {
-        console.log('fired');
         this.y -= this.velocity * oneUnit.y;
+        this.unitY -= this.velocity;
+        this.checkColissions(aliens);
       } else {
         this.x = player.unitX * oneUnit.x;
         this.y = player.unitY * oneUnit.y;
+        this.unitX = player.unitX;
+        this.unitY = player.unitY;
       }
       if (this.y <= 0) {
         this.fired = false;
         this.x = player.unitX * oneUnit.x;
         this.y = player.unitY * oneUnit.y;
+        this.unitX = player.unitX;
+        this.unitY = player.unitY;
       }
       this.draw(ctx);
     }

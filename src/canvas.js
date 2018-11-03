@@ -8,16 +8,8 @@ let canvas = document.querySelector('canvas')
 const c = canvas.getContext('2d')
 
 function canvasSize(canvas) {
-  let x
-  if(innerHeight < innerWidth) {
-    x = innerHeight
-    canvas.width = x
-    canvas.height = x
-  } else {
-    x = innerWidth
-    canvas.width = x
-    canvas.height = x
-  }
+  canvas.width = 800
+  canvas.height = 800
   return canvas
 }
 

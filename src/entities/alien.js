@@ -15,13 +15,21 @@ export class Alien {
   }
 
   resposition(ctx){
-    const oneUnit = oneUnitFromCanvas(ctx.canvas);
-    this.unitX = randomIntFromRange(0, 200)
-    this.unitY = randomIntFromRange(50, 150)
-    this.x = this.unitX * oneUnit.x
-    this.y = this.unitY * oneUnit.y
-    this.timeout = randomIntFromRange(180, 600)
+    this.x = randomIntFromRange(10, ctx.canvas.width-10)
+    this.y = randomIntFromRange(200, ctx.canvas.height-200)
+    this.invertedX = ctx.canvas.width - this.x
+    this.invertedY = ctx.canvas.height - this.y
+    this.timeout = randomIntFromRange(180, 400)
     this.shift = 0
+  }
+
+  getPosition(){
+    return {
+      x: this.x,
+      y: this.y,
+      invertedX: this.invertedX,
+      invertedY: this.invertedY
+    }
   }
 
   draw(ctx){
@@ -38,7 +46,7 @@ export class Alien {
     } else {
       this.resposition(ctx)
     }
-    this.draw((ctx))
+    this.draw(ctx)
 
   }
 

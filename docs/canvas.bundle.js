@@ -98,16 +98,8 @@ var canvas = document.querySelector('canvas'); // Initial Setup
 var c = canvas.getContext('2d');
 
 function canvasSize(canvas) {
-  var x = void 0;
-  if (innerHeight < innerWidth) {
-    x = innerHeight;
-    canvas.width = x;
-    canvas.height = x;
-  } else {
-    x = innerWidth;
-    canvas.width = x;
-    canvas.height = x;
-  }
+  canvas.width = 800;
+  canvas.height = 800;
   return canvas;
 }
 
@@ -254,13 +246,22 @@ var Alien = exports.Alien = function () {
   _createClass(Alien, [{
     key: "resposition",
     value: function resposition(ctx) {
-      var oneUnit = (0, _utilities.oneUnitFromCanvas)(ctx.canvas);
-      this.unitX = (0, _canvas.randomIntFromRange)(0, 200);
-      this.unitY = (0, _canvas.randomIntFromRange)(50, 150);
-      this.x = this.unitX * oneUnit.x;
-      this.y = this.unitY * oneUnit.y;
-      this.timeout = (0, _canvas.randomIntFromRange)(180, 600);
+      this.x = (0, _canvas.randomIntFromRange)(10, ctx.canvas.width - 10);
+      this.y = (0, _canvas.randomIntFromRange)(200, ctx.canvas.height - 200);
+      this.invertedX = ctx.canvas.width - this.x;
+      this.invertedY = ctx.canvas.height - this.y;
+      this.timeout = (0, _canvas.randomIntFromRange)(180, 400);
       this.shift = 0;
+    }
+  }, {
+    key: "getPosition",
+    value: function getPosition() {
+      return {
+        x: this.x,
+        y: this.y,
+        invertedX: this.invertedX,
+        invertedY: this.invertedY
+      };
     }
   }, {
     key: "draw",
@@ -494,8 +495,8 @@ var Star = exports.Star = function () {
 
     _classCallCheck(this, Star);
 
-    this.x = (0, _canvas.randomIntFromRange)(10, ctx.canvas.width);
-    this.y = (0, _canvas.randomIntFromRange)(10, ctx.canvas.height);
+    this.x = (0, _canvas.randomIntFromRange)(10, ctx.canvas.width - 10);
+    this.y = (0, _canvas.randomIntFromRange)(10, ctx.canvas.height - 10);
     this.r = (0, _canvas.randomIntFromRange)(1, 2);
     this.color = 'rgba(255,255,255,1)';
     setInterval(function () {

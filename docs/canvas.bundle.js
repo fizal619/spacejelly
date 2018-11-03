@@ -157,7 +157,7 @@ function init() {
   for (var i = 0; i < 100; i++) {
     stars.push(new _star.Star(c));
   }
-  for (var j = 0; j < 20; j++) {
+  for (var j = 0; j < 10; j++) {
     aliens.push(new _alien.Alien(c, randomColor(colors)));
   }
   player = new _spaceship2.default(randomColor(colors), c);
@@ -241,6 +241,7 @@ var Alien = exports.Alien = function () {
     this.timeout = 60;
     this.shift = 0;
     this.box = 7;
+    this.alive = true;
   }
 
   _createClass(Alien, [{
@@ -264,13 +265,20 @@ var Alien = exports.Alien = function () {
       };
     }
   }, {
+    key: "kill",
+    value: function kill() {
+      this.alive = false;
+    }
+  }, {
     key: "draw",
     value: function draw(ctx) {
-      ctx.beginPath();
-      ctx.arc(this.x, this.y, this.box, 0, Math.PI * 2, false);
-      ctx.fillStyle = this.color;
-      ctx.fill();
-      ctx.closePath();
+      if (this.alive) {
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.box, 0, Math.PI * 2, false);
+        ctx.fillStyle = this.color;
+        ctx.fill();
+        ctx.closePath();
+      }
     }
   }, {
     key: "update",
@@ -316,14 +324,14 @@ var Laser = exports.Laser = function () {
     var oneUnit = (0, _utilities.oneUnitFromCanvas)(ctx.canvas);
     this.color = 'green';
     this.fired = false;
-    this.velocity = 3;
+    this.velocity = 4;
     this.unitX = player.unitX;
     this.unitY = player.unitY;
     this.x = player.unitX * oneUnit.x;
     this.y = player.unitY * oneUnit.y;
-    this.box = 7;
+    this.box = 2;
     setInterval(function () {
-      _this.color = "rgba(255,127,127," + Math.random() + ")";
+      _this.color = "rgba(0,255,0," + Math.random() + ")";
     }, 500);
   }
 
@@ -352,7 +360,9 @@ var Laser = exports.Laser = function () {
       var _this2 = this;
 
       var hit = aliens.reduce(function (p, c, i) {
-        if ((0, _canvas.distance)(c.unitX, c.unitY, _this2.unitX, _this2.unitY) <= _this2.box + c.box + 20) {
+        if ((0, _canvas.distance)(c.x, c.y, _this2.x, _this2.y) <= _this2.box + c.box) {
+          c.kill();
+          _this2.y = 0;
           return true;
         }
       }, false);

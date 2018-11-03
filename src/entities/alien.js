@@ -12,6 +12,7 @@ export class Alien {
     this.timeout = 60
     this.shift = 0
     this.box = 7
+    this.alive = true
   }
 
   resposition(ctx){
@@ -32,12 +33,18 @@ export class Alien {
     }
   }
 
+  kill(){
+    this.alive = false
+  }
+
   draw(ctx){
-    ctx.beginPath()
-    ctx.arc(this.x, this.y, this.box, 0, Math.PI * 2, false)
-    ctx.fillStyle = this.color
-    ctx.fill()
-    ctx.closePath()
+    if(this.alive){
+      ctx.beginPath()
+      ctx.arc(this.x, this.y, this.box, 0, Math.PI * 2, false)
+      ctx.fillStyle = this.color
+      ctx.fill()
+      ctx.closePath()
+    }
   }
 
   update(ctx){

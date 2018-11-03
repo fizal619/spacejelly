@@ -68,7 +68,7 @@ function init() {
   for (let i = 0; i < 100; i++) {
     stars.push(new Star(c))
   }
-  for (let j = 0; j < 20; j++) {
+  for (let j = 0; j < 10; j++) {
     aliens.push(new Alien(c, randomColor(colors)))
   }
   player = new Spaceship(randomColor(colors), c)

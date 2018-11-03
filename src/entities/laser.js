@@ -11,14 +11,14 @@ export class Laser {
     const oneUnit = oneUnitFromCanvas(ctx.canvas)
     this.color = 'green'
     this.fired = false
-    this.velocity = 3
+    this.velocity = 4
     this.unitX = player.unitX
     this.unitY = player.unitY
     this.x = player.unitX * oneUnit.x
     this.y = player.unitY * oneUnit.y
-    this.box = 7
+    this.box = 2
     setInterval(()=>{
-      this.color = `rgba(255,127,127,${Math.random()})`
+      this.color = `rgba(0,255,0,${Math.random()})`
     }, 500);
   }
 
@@ -41,7 +41,9 @@ export class Laser {
 
   checkColissions(aliens){
     let hit = aliens.reduce((p,c,i)=>{
-      if (distance(c.unitX, c.unitY, this.unitX, this.unitY) <= (this.box + c.box + 20)) {
+      if (distance(c.x, c.y, this.x, this.y) <= (this.box + c.box)) {
+        c.kill()
+        this.y = 0;
         return true
       }
     }, false)

@@ -235,6 +235,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 var Alien = exports.Alien = function () {
   function Alien(ctx, color) {
+    var _this = this;
+
     _classCallCheck(this, Alien);
 
     this.color = color;
@@ -242,6 +244,15 @@ var Alien = exports.Alien = function () {
     this.shift = 0;
     this.box = 7;
     this.alive = true;
+    this.frame = 0;
+    this.image = new Image();
+    this.image.src = "assets/alien/" + color + "_alien.png";
+    this.width = 24;
+    this.height = 24;
+    setInterval(function () {
+      _this.frame++;
+      if (_this.frame === 7) _this.frame = 0;
+    }, 1000 / 12);
   }
 
   _createClass(Alien, [{
@@ -273,11 +284,7 @@ var Alien = exports.Alien = function () {
     key: "draw",
     value: function draw(ctx) {
       if (this.alive) {
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.box, 0, Math.PI * 2, false);
-        ctx.fillStyle = this.color;
-        ctx.fill();
-        ctx.closePath();
+        ctx.drawImage(this.image, this.frame * 32, 0, 32, 32, this.x - this.width / 2, this.y - this.height / 2, this.width, this.height);
       }
     }
   }, {

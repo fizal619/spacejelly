@@ -8,18 +8,21 @@ import {
 
 export class Laser {
   constructor(ctx, player){
-    const oneUnit = oneUnitFromCanvas(ctx.canvas)
     this.color = 'green'
     this.fired = false
-    this.velocity = 4
-    this.unitX = player.unitX
-    this.unitY = player.unitY
-    this.x = player.unitX * oneUnit.x
-    this.y = player.unitY * oneUnit.y
-    this.box = 2
+    this.velocity = 3
+    this.box = 10
+    this.width = 32
+    this.height = 32
+    this.x = player.x
+    this.y = player.y
+    this.frame = 0
+    this.image = new Image()
+    this.image.src = 'assets/ship/rocket.png'
     setInterval(()=>{
-      this.color = `rgba(0,255,0,${Math.random()})`
-    }, 500);
+      this.frame ++
+      if(this.frame === 7) this.frame = 0
+    }, 1000/12)
   }
 
   action(e, ctx){
@@ -32,24 +35,20 @@ export class Laser {
   }
 
   draw(ctx){
-    ctx.beginPath()
-    ctx.arc(this.x, this.y, this.box, 0, Math.PI * 2, false)
-    ctx.fillStyle = this.color
-    ctx.fill()
-    ctx.closePath()
+    ctx.drawImage(this.image,this.frame * 32, 0, 32, 32, this.x - this.width/2, this.y - this.height/2, this.width, this.height)
   }
 
   checkColissions(aliens){
     let hit = aliens.reduce((p,c,i)=>{
       if (distance(c.x, c.y, this.x, this.y) <= (this.box + c.box)) {
-        c.kill()
-        this.y = 0;
-        return true
+        if (c.alive) {
+          c.kill()
+          this.y = 0
+          console.log('HIT')
+          return true
+        }
       }
     }, false)
-    if (hit) {
-      console.log('HIT')
-    }
   }
 
   update(ctx, player, aliens){

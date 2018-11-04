@@ -13,6 +13,16 @@ export class Alien {
     this.shift = 0
     this.box = 7
     this.alive = true
+    this.frame = 0
+    this.image = new Image()
+    this.image.src = `assets/alien/${color}_alien.png`
+    this.width = 24
+    this.height = 24
+    setInterval(()=>{
+      this.frame ++
+      if(this.frame === 7) this.frame = 0
+    }, 1000/12)
+
   }
 
   resposition(ctx){
@@ -39,11 +49,7 @@ export class Alien {
 
   draw(ctx){
     if(this.alive){
-      ctx.beginPath()
-      ctx.arc(this.x, this.y, this.box, 0, Math.PI * 2, false)
-      ctx.fillStyle = this.color
-      ctx.fill()
-      ctx.closePath()
+      ctx.drawImage(this.image,this.frame * 32, 0, 32, 32, this.x - this.width/2, this.y - this.height/2, this.width, this.height)
     }
   }
 
